@@ -214,23 +214,59 @@ export default function ResumePage() {
   }
 
   const exportToPDF = () => {
-    if (!previewRef.current) return
-
-    const element = previewRef.current
-    const options = {
-      margin: 1,
-      filename: `${resumeData.personalInfo.name || 'resume'}.pdf`,
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2 },
-      jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+    if (!previewRef.current) {
+      toast({
+        title: "Error",
+        description: "No preview available to export",
+        variant: "destructive",
+      })
+      return
     }
 
-    // @ts-ignore
-    html2pdf().set(options).from(element).save()
-    toast({
-      title: "PDF Exported",
-      description: "Your resume has been exported to PDF.",
-    })
+    // Ensure we're running on the client side
+    if (typeof window === 'undefined') {
+      toast({
+        title: "Error",
+        description: "PDF export is only available in the browser",
+        variant: "destructive",
+      })
+      return
+    }
+
+    try {
+      const element = previewRef.current
+      const options = {
+        margin: 1,
+        filename: `${resumeData.personalInfo.name || 'resume'}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { 
+          scale: 2,
+          logging: false,
+          useCORS: true
+        },
+        jsPDF: { 
+          unit: 'in', 
+          format: 'letter', 
+          orientation: 'portrait',
+          compress: true
+        }
+      }
+
+      // @ts-ignore
+      html2pdf().set(options).from(element).save()
+      
+      toast({
+        title: "PDF Exported",
+        description: "Your resume has been exported to PDF.",
+      })
+    } catch (error) {
+      console.error('Error exporting PDF:', error)
+      toast({
+        title: "Error",
+        description: "Failed to export PDF. Please try again.",
+        variant: "destructive",
+      })
+    }
   }
 
   if (!isMounted) {
