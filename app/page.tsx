@@ -135,7 +135,7 @@ export default function ResumePage() {
         location: "New York, NY",
         website: "https://johndoe.dev",
         summary: "Experienced software engineer with a passion for building scalable web applications.",
-        profilePicture: ""
+        profilePicture: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%230070f3'/%3E%3Ctext x='50' y='60' font-family='Arial' font-size='40' fill='white' text-anchor='middle' font-weight='bold'%3EJD%3C/text%3E%3C/svg%3E"
       },
       education: [
         {
@@ -242,7 +242,19 @@ export default function ResumePage() {
         html2canvas: { 
           scale: 2,
           logging: false,
-          useCORS: true
+          useCORS: true,
+          allowTaint: false,
+          onclone: function(doc) {
+            // Ensure the profile picture is properly loaded
+            const profileImg = doc.querySelector('.profile-picture')
+            if (profileImg && profileImg.src) {
+              const img = new Image()
+              img.src = profileImg.src
+              img.onload = () => {
+                profileImg.src = img.src
+              }
+            }
+          }
         },
         jsPDF: { 
           unit: 'in', 
@@ -252,12 +264,32 @@ export default function ResumePage() {
         }
       }
 
-      // @ts-ignore
-      html2pdf().set(options).from(element).save()
+      // Create a temporary container to clone the resume
+      const tempContainer = document.createElement('div')
+      tempContainer.innerHTML = element.innerHTML
       
-      toast({
-        title: "PDF Exported",
-        description: "Your resume has been exported to PDF.",
+      // Wait for images to load
+      const images = tempContainer.getElementsByTagName('img')
+      const promises = Array.from(images).map(img => new Promise(resolve => {
+        if (img.complete) resolve(null)
+        else img.onload = resolve
+      }))
+
+      Promise.all(promises).then(() => {
+        // @ts-ignore
+        html2pdf().set(options).from(tempContainer).save()
+        
+        toast({
+          title: "PDF Exported",
+          description: "Your resume has been exported to PDF.",
+        })
+      }).catch(error => {
+        console.error('Error loading images:', error)
+        toast({
+          title: "Error",
+          description: "Failed to load images. PDF may be incomplete.",
+          variant: "destructive",
+        })
       })
     } catch (error) {
       console.error('Error exporting PDF:', error)
