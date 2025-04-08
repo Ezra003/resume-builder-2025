@@ -32,8 +32,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { ThemeSelector } from "@/components/theme-selector"
-import type { ResumeData } from "@/hooks/use-resume"
-import { sampleResumeData } from "@/lib/sample-data"
+import html2pdf from "html2pdf.js"
+import { PersonalInfo, Education, Experience, Skill, Project, ResumeData } from "@/hooks/use-resume"
 
 export default function ResumePage() {
   const { resumeData, setResumeData, resetResume } = useResume()
@@ -98,7 +98,54 @@ export default function ResumePage() {
             </head>
             <body onload="window.print();window.close()">
               <div class="resume-container">
-                ${previewRef.current.innerHTML}
+                <h1>${resumeData.personalInfo.name || "Your Name"}</h1>
+                <div class="contact-info">
+                  ${resumeData.personalInfo.email ? `<div>Email: ${resumeData.personalInfo.email}</div>` : ''}
+                  ${resumeData.personalInfo.phone ? `<div>Phone: ${resumeData.personalInfo.phone}</div>` : ''}
+                  ${resumeData.personalInfo.location ? `<div>Location: ${resumeData.personalInfo.location}</div>` : ''}
+                  ${resumeData.personalInfo.website ? `<div>Website: ${resumeData.personalInfo.website}</div>` : ''}
+                </div>
+                ${Object.entries(resumeData).map(([section, data]) => {
+                  if (section === 'personalInfo') return ''
+                  if (!data || (Array.isArray(data) && data.length === 0)) return ''
+                  
+                  // Handle different section types
+                  const sectionData = Array.isArray(data) ? data : [data]
+                  return `
+                    <div class="section">
+                      <h2>${section.charAt(0).toUpperCase() + section.slice(1)}</h2>
+                      ${sectionData.map((item: any) => {
+                        if (section === 'skills') {
+                          return `
+                            <div class="skills-list">
+                              ${item.name ? `<div class="skill-item">${item.name}</div>` : ''}
+                            </div>
+                          `
+                        }
+                        return `
+                          <div class="item">
+                            <div class="item-header">
+                              <div class="item-title">
+                                ${section === 'education' ? (item as Education).institution :
+                                 section === 'experience' ? (item as Experience).position :
+                                 section === 'projects' ? (item as Project).name :
+                                 (item as any).title}
+                              </div>
+                              ${section === 'education' ? 
+                                `${(item as Education).startDate}${(item as Education).endDate ? ` - ${(item as Education).endDate}` : ''}` :
+                                section === 'experience' ? 
+                                `${(item as Experience).startDate}${(item as Experience).endDate ? ` - ${(item as Experience).endDate}` : ''}` :
+                                ''}
+                            </div>
+                            ${section === 'experience' ? 
+                              `<div class="item-subtitle">${(item as Experience).company}</div>` : ''}
+                            ${(item as any).description ? `<div class="item-description">${(item as any).description}</div>` : ''}
+                          </div>
+                        `
+                      }).join('')}
+                    </div>
+                  `
+                }).join('')}
               </div>
             </body>
           </html>
@@ -168,7 +215,79 @@ export default function ResumePage() {
   }
 
   const loadSampleData = () => {
-    setResumeData(sampleResumeData)
+    const sampleData: ResumeData = {
+      personalInfo: {
+        name: "John Doe",
+        title: "Software Engineer",
+        email: "john.doe@example.com",
+        phone: "123-456-7890",
+        location: "New York, NY",
+        website: "https://johndoe.dev",
+        summary: "Experienced software engineer with a passion for building scalable web applications.",
+        profilePicture: ""
+      },
+      education: [
+        {
+          id: crypto.randomUUID(),
+          institution: "New York University",
+          degree: "Bachelor of Science",
+          field: "Computer Science",
+          startDate: "2015",
+          endDate: "2019",
+          description: "Coursework: Data Structures, Algorithms, Computer Systems, Web Development"
+        }
+      ],
+      experience: [
+        {
+          id: crypto.randomUUID(),
+          company: "ABC Corporation",
+          position: "Software Engineer",
+          location: "New York, NY",
+          startDate: "2020",
+          endDate: "Present",
+          current: true,
+          description: "Developed multiple web applications using React, Node.js, and MongoDB"
+        }
+      ],
+      skills: [
+        {
+          id: crypto.randomUUID(),
+          name: "JavaScript",
+          level: 5
+        },
+        {
+          id: crypto.randomUUID(),
+          name: "TypeScript",
+          level: 5
+        },
+        {
+          id: crypto.randomUUID(),
+          name: "React",
+          level: 5
+        },
+        {
+          id: crypto.randomUUID(),
+          name: "Node.js",
+          level: 4
+        },
+        {
+          id: crypto.randomUUID(),
+          name: "MongoDB",
+          level: 4
+        }
+      ],
+      projects: [
+        {
+          id: crypto.randomUUID(),
+          name: "Personal Website",
+          description: "A personal website built using React, Next.js, and Tailwind CSS",
+          technologies: "React, Next.js, Tailwind CSS",
+          link: "https://johndoe.dev"
+        }
+      ],
+      theme: "classic"
+    }
+    setResumeData(sampleData)
     toast({
       title: "Sample data loaded",
       description: "Sample resume data has been loaded. You can now edit it.",
@@ -180,6 +299,26 @@ export default function ResumePage() {
     toast({
       title: "Resume cleared",
       description: "Your resume has been reset to blank.",
+    })
+  }
+
+  const exportToPDF = () => {
+    if (!previewRef.current) return
+
+    const element = previewRef.current
+    const options = {
+      margin: 1,
+      filename: `${resumeData.personalInfo.name || 'resume'}.pdf`,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+    }
+
+    // @ts-ignore
+    html2pdf().set(options).from(element).save()
+    toast({
+      title: "PDF Exported",
+      description: "Your resume has been exported to PDF.",
     })
   }
 
@@ -248,9 +387,14 @@ export default function ResumePage() {
 
           <ThemeSelector />
 
-          <Button onClick={handlePrint}>
+          <Button onClick={exportToPDF} variant="outline">
             <Download className="mr-2 h-4 w-4" />
             Export PDF
+          </Button>
+
+          <Button onClick={handlePrint} variant="outline">
+            <Download className="mr-2 h-4 w-4" />
+            Print
           </Button>
 
           <input type="file" ref={fileInputRef} onChange={importResumeData} accept=".json" className="hidden" />
