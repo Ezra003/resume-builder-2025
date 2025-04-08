@@ -66,95 +66,6 @@ export default function ResumePage() {
     }
   }, [setResumeData, toast])
 
-  const handlePrint = () => {
-    if (previewRef.current) {
-      const printWindow = window.open("", "_blank")
-      if (printWindow) {
-        printWindow.document.write(`
-          <html>
-            <head>
-              <title>${resumeData.personalInfo.name || "Resume"}</title>
-              <style>
-                body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
-                .resume-container { max-width: 800px; margin: 0 auto; padding: 20px; }
-                h1 { font-size: 24px; margin-bottom: 5px; }
-                h2 { font-size: 18px; color: #666; margin-bottom: 15px; }
-                h3 { font-size: 16px; margin-bottom: 10px; border-bottom: 1px solid #ddd; padding-bottom: 5px; }
-                .contact-info { display: flex; flex-wrap: wrap; gap: 15px; font-size: 14px; color: #666; margin-bottom: 20px; }
-                .section { margin-bottom: 20px; }
-                .item { margin-bottom: 15px; }
-                .item-header { display: flex; justify-content: space-between; }
-                .item-title { font-weight: bold; }
-                .item-subtitle { color: #666; }
-                .item-date { font-size: 14px; color: #666; }
-                .item-description { font-size: 14px; margin-top: 5px; }
-                .skills-list { display: flex; flex-wrap: wrap; gap: 8px; }
-                .skill-item { background: #f0f0f0; padding: 5px 10px; border-radius: 15px; font-size: 14px; }
-                @media print {
-                  body { -webkit-print-color-adjust: exact; }
-                  .no-print { display: none; }
-                }
-              </style>
-            </head>
-            <body onload="window.print();window.close()">
-              <div class="resume-container">
-                <h1>${resumeData.personalInfo.name || "Your Name"}</h1>
-                <div class="contact-info">
-                  ${resumeData.personalInfo.email ? `<div>Email: ${resumeData.personalInfo.email}</div>` : ''}
-                  ${resumeData.personalInfo.phone ? `<div>Phone: ${resumeData.personalInfo.phone}</div>` : ''}
-                  ${resumeData.personalInfo.location ? `<div>Location: ${resumeData.personalInfo.location}</div>` : ''}
-                  ${resumeData.personalInfo.website ? `<div>Website: ${resumeData.personalInfo.website}</div>` : ''}
-                </div>
-                ${Object.entries(resumeData).map(([section, data]) => {
-                  if (section === 'personalInfo') return ''
-                  if (!data || (Array.isArray(data) && data.length === 0)) return ''
-                  
-                  // Handle different section types
-                  const sectionData = Array.isArray(data) ? data : [data]
-                  return `
-                    <div class="section">
-                      <h2>${section.charAt(0).toUpperCase() + section.slice(1)}</h2>
-                      ${sectionData.map((item: any) => {
-                        if (section === 'skills') {
-                          return `
-                            <div class="skills-list">
-                              ${item.name ? `<div class="skill-item">${item.name}</div>` : ''}
-                            </div>
-                          `
-                        }
-                        return `
-                          <div class="item">
-                            <div class="item-header">
-                              <div class="item-title">
-                                ${section === 'education' ? (item as Education).institution :
-                                 section === 'experience' ? (item as Experience).position :
-                                 section === 'projects' ? (item as Project).name :
-                                 (item as any).title}
-                              </div>
-                              ${section === 'education' ? 
-                                `${(item as Education).startDate}${(item as Education).endDate ? ` - ${(item as Education).endDate}` : ''}` :
-                                section === 'experience' ? 
-                                `${(item as Experience).startDate}${(item as Experience).endDate ? ` - ${(item as Experience).endDate}` : ''}` :
-                                ''}
-                            </div>
-                            ${section === 'experience' ? 
-                              `<div class="item-subtitle">${(item as Experience).company}</div>` : ''}
-                            ${(item as any).description ? `<div class="item-description">${(item as any).description}</div>` : ''}
-                          </div>
-                        `
-                      }).join('')}
-                    </div>
-                  `
-                }).join('')}
-              </div>
-            </body>
-          </html>
-        `)
-        printWindow.document.close()
-      }
-    }
-  }
-
   const saveToLocalStorage = () => {
     try {
       localStorage.setItem("resumeData", JSON.stringify(resumeData))
@@ -390,11 +301,6 @@ export default function ResumePage() {
           <Button onClick={exportToPDF} variant="outline">
             <Download className="mr-2 h-4 w-4" />
             Export PDF
-          </Button>
-
-          <Button onClick={handlePrint} variant="outline">
-            <Download className="mr-2 h-4 w-4" />
-            Print
           </Button>
 
           <input type="file" ref={fileInputRef} onChange={importResumeData} accept=".json" className="hidden" />
