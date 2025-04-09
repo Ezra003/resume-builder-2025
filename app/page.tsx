@@ -236,17 +236,17 @@ export default function ResumePage() {
     try {
       const element = previewRef.current
       const options = {
-        margin: 1,
+        margin: [25, 25, 25, 25], // Left, Top, Right, Bottom
         filename: `${resumeData.personalInfo.name || 'resume'}.pdf`,
-        image: { type: 'jpeg', quality: 0.98 },
+        image: { type: 'jpeg', quality: 1.0 },
         html2canvas: { 
           scale: 2,
           logging: false,
           useCORS: true,
           allowTaint: false,
-          onclone: function(doc) {
+          onclone: function(doc: Document) {
             // Ensure the profile picture is properly loaded
-            const profileImg = doc.querySelector('.profile-picture')
+            const profileImg = doc.querySelector('.profile-picture') as HTMLImageElement
             if (profileImg && profileImg.src) {
               const img = new Image()
               img.src = profileImg.src
@@ -254,19 +254,113 @@ export default function ResumePage() {
                 profileImg.src = img.src
               }
             }
-          }
+          },
+          backgroundColor: '#ffffff'
         },
         jsPDF: { 
-          unit: 'in', 
-          format: 'letter', 
+          unit: 'mm', 
+          format: 'a4', 
           orientation: 'portrait',
-          compress: true
+          compress: true,
+          putOnlyUsedFonts: true
         }
       }
 
       // Create a temporary container to clone the resume
       const tempContainer = document.createElement('div')
       tempContainer.innerHTML = element.innerHTML
+      
+      // Add print-specific styles
+      const style = document.createElement('style')
+      style.textContent = `
+        body {
+          font-family: Arial, sans-serif;
+          color: #333;
+          line-height: 1.6;
+          width: 100%;
+          padding: 20mm;
+          box-sizing: border-box;
+        }
+        
+        .profile-picture {
+          width: 100px;
+          height: 100px;
+          border-radius: 50%;
+          margin-right: 20px;
+        }
+        
+        .header {
+          display: flex;
+          align-items: center;
+          margin-bottom: 20mm;
+        }
+        
+        .contact-info {
+          margin-top: 10mm;
+          font-size: 12pt;
+          color: #666;
+        }
+        
+        .section {
+          margin-bottom: 15mm;
+          page-break-inside: avoid;
+        }
+        
+        .section-title {
+          font-size: 14pt;
+          font-weight: bold;
+          color: #0070f3;
+          margin-bottom: 5mm;
+          border-bottom: 2px solid #0070f3;
+          padding-bottom: 2mm;
+        }
+        
+        .item {
+          margin-bottom: 10mm;
+        }
+        
+        .item-header {
+          display: flex;
+          justify-content: space-between;
+          margin-bottom: 5mm;
+        }
+        
+        .item-title {
+          font-weight: bold;
+          font-size: 12pt;
+        }
+        
+        .item-subtitle {
+          color: #666;
+          font-size: 11pt;
+        }
+        
+        .item-date {
+          color: #666;
+          font-size: 11pt;
+        }
+        
+        .skills-list {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 8px;
+          margin-top: 5mm;
+        }
+        
+        .skill-item {
+          background: #f0f0f0;
+          padding: 4px 8px;
+          border-radius: 20px;
+          font-size: 11pt;
+          color: #333;
+        }
+        
+        @page {
+          margin: 25mm;
+          size: A4;
+        }
+      `
+      tempContainer.appendChild(style)
       
       // Wait for images to load
       const images = tempContainer.getElementsByTagName('img')
