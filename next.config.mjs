@@ -28,8 +28,10 @@ const nextConfig = {
     return config;
   },
   experimental: {
-    appDir: true,
     esmExternals: true,
+  },
+  env: {
+    IS_SERVER: process.env.IS_SERVER || 'false',
   },
 };
 
