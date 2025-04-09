@@ -110,35 +110,33 @@ export function MinimalTemplate() {
           <h3 className="text-md uppercase tracking-wider text-center mb-4 font-semibold">Projects</h3>
           <div className="space-y-6">
             {projects.map((project) => (
-              <div key={project.id} className="section">
-                <div className="item">
-                  <div className="item-header">
-                    <div className="item-title">{project.name}</div>
-                    {project.technologies && (
-                      <div className="item-subtitle">{project.technologies}</div>
-                    )}
-                  </div>
-                  <div className="item-description">
-                    {project.description}
-                    {project.link && (
-                      <div className="mt-2">
-                        <a
-                          href={project.link}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-blue-600 hover:text-blue-800 underline"
-                          style={{
-                            display: 'inline-block',
-                            wordBreak: 'break-all',
-                            maxWidth: '100%',
-                          }}
-                        >
-                          {project.link}
-                        </a>
-                      </div>
-                    )}
-                  </div>
+              <div key={project.id} className="text-center">
+                <div className="mb-2">
+                  <h4 className="font-bold text-lg">{project.name}</h4>
+                  {project.technologies && (
+                    <p className="text-sm text-gray-600 mb-1">{project.technologies}</p>
+                  )}
                 </div>
+                <div className="max-w-2xl mx-auto mb-2">
+                  <p className="text-sm leading-relaxed">{project.description}</p>
+                </div>
+                {project.link && (
+                  <div className="mt-2">
+                    <a
+                      href={project.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm text-blue-600 hover:text-blue-800 underline"
+                      style={{
+                        display: 'inline-block',
+                        wordBreak: 'break-all',
+                        maxWidth: '100%',
+                      }}
+                    >
+                      {project.link}
+                    </a>
+                  </div>
+                )}
               </div>
             ))}
           </div>
