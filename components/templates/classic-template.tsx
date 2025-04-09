@@ -149,23 +149,30 @@ export function ClassicTemplate() {
               <div key={project.id}>
                 <div className="flex justify-between items-start">
                   <h4 className="font-bold">{project.name}</h4>
-                  {project.link && (
+                  {project.technologies && (
+                    <p className="text-sm text-gray-600 mt-1">
+                      <span className="font-medium">Technologies:</span> {project.technologies}
+                    </p>
+                  )}
+                </div>
+                <p className="text-sm mt-1">{project.description}</p>
+                {project.link && (
+                  <div className="mt-2">
                     <a
                       href={project.link}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-sm text-blue-600 hover:underline"
+                      className="text-blue-600 hover:text-blue-800 underline"
+                      style={{
+                        display: 'inline-block',
+                        wordBreak: 'break-all',
+                        maxWidth: '100%',
+                      }}
                     >
-                      View Project
+                      {project.link}
                     </a>
-                  )}
-                </div>
-                {project.technologies && (
-                  <p className="text-sm text-gray-600 mt-1">
-                    <span className="font-medium">Technologies:</span> {project.technologies}
-                  </p>
+                  </div>
                 )}
-                <p className="text-sm mt-1">{project.description}</p>
               </div>
             ))}
           </div>

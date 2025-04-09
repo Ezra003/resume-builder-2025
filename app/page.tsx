@@ -355,6 +355,21 @@ export default function ResumePage() {
           color: #333;
         }
         
+        .item-description {
+          font-size: 11pt;
+          color: #333;
+          margin-top: 5mm;
+        }
+        
+        .item-description a {
+          color: #0070f3;
+          text-decoration: underline;
+          word-break: break-all;
+          display: inline-block;
+          margin-top: 5mm;
+          font-size: 11pt;
+        }
+        
         @page {
           margin: 25mm;
           size: A4;

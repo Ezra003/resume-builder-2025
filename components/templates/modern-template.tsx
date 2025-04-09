@@ -161,27 +161,33 @@ export function ModernTemplate() {
               </div>
               <div className="space-y-3">
                 {projects.map((project) => (
-                  <div key={project.id} className="border-l-2 border-slate-200 pl-3 ml-1 relative">
-                    <div className="absolute w-2 h-2 bg-slate-800 rounded-full -left-[5px] top-1.5"></div>
-                    <div className="flex justify-between items-start">
-                      <h4 className="font-bold text-sm">{project.name}</h4>
-                      {project.link && (
-                        <a
-                          href={project.link}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-xs text-blue-600 hover:underline"
-                        >
-                          View
-                        </a>
+                  <div key={project.id} className="item">
+                    <div className="item-header">
+                      <div className="item-title">{project.name}</div>
+                      {project.technologies && (
+                        <div className="item-subtitle">{project.technologies}</div>
                       )}
                     </div>
-                    {project.technologies && (
-                      <p className="text-xs text-slate-600 mt-0.5">
-                        <span className="font-medium">Tech:</span> {project.technologies}
-                      </p>
-                    )}
-                    <p className="text-xs mt-0.5">{project.description}</p>
+                    <div className="item-description">
+                      {project.description}
+                      {project.link && (
+                        <div className="mt-2">
+                          <a
+                            href={project.link}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-600 hover:text-blue-800 underline"
+                            style={{
+                              display: 'inline-block',
+                              wordBreak: 'break-all',
+                              maxWidth: '100%',
+                            }}
+                          >
+                            {project.link}
+                          </a>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>
