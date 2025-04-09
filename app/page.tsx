@@ -255,14 +255,39 @@ export default function ResumePage() {
               }
             }
           },
-          backgroundColor: '#ffffff'
+          backgroundColor: '#ffffff',
+          letterRendering: 1,
+          ignoreElements: (element: HTMLElement) => {
+            // Prevent page breaks within words
+            if (element.tagName === 'SPAN' || element.tagName === 'A') {
+              return false
+            }
+            return false
+          }
         },
         jsPDF: { 
           unit: 'mm', 
           format: 'a4', 
           orientation: 'portrait',
           compress: true,
-          putOnlyUsedFonts: true
+          putOnlyUsedFonts: true,
+          pageBreak: {
+            mode: 'avoid-all',
+            before: (currentElement: HTMLElement, elementsOnPage: HTMLElement[]) => {
+              // Prevent page breaks within paragraphs
+              if (currentElement.tagName === 'P') {
+                return false
+              }
+              return false
+            },
+            after: (currentElement: HTMLElement, elementsOnPage: HTMLElement[]) => {
+              // Prevent page breaks within items
+              if (currentElement.classList.contains('item')) {
+                return false
+              }
+              return false
+            }
+          }
         }
       }
 
@@ -304,6 +329,10 @@ export default function ResumePage() {
         .section {
           margin-bottom: 15mm;
           page-break-inside: avoid;
+          break-inside: avoid;
+          -webkit-column-break-inside: avoid;
+          page-break-after: avoid;
+          break-after: avoid;
         }
         
         .section-title {
@@ -313,52 +342,71 @@ export default function ResumePage() {
           margin-bottom: 5mm;
           border-bottom: 2px solid #0070f3;
           padding-bottom: 2mm;
+          page-break-after: avoid;
+          break-after: avoid;
         }
         
         .item {
           margin-bottom: 10mm;
+          page-break-inside: avoid;
+          break-inside: avoid;
+          -webkit-column-break-inside: avoid;
+          page-break-after: avoid;
+          break-after: avoid;
         }
         
         .item-header {
           display: flex;
           justify-content: space-between;
           margin-bottom: 5mm;
+          page-break-inside: avoid;
+          break-inside: avoid;
+          -webkit-column-break-inside: avoid;
         }
         
         .item-title {
           font-weight: bold;
           font-size: 12pt;
+          page-break-inside: avoid;
+          break-inside: avoid;
+          -webkit-column-break-inside: avoid;
         }
         
         .item-subtitle {
           color: #666;
           font-size: 11pt;
+          page-break-inside: avoid;
+          break-inside: avoid;
+          -webkit-column-break-inside: avoid;
         }
         
         .item-date {
           color: #666;
           font-size: 11pt;
-        }
-        
-        .skills-list {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 8px;
-          margin-top: 5mm;
-        }
-        
-        .skill-item {
-          background: #f0f0f0;
-          padding: 4px 8px;
-          border-radius: 20px;
-          font-size: 11pt;
-          color: #333;
+          page-break-inside: avoid;
+          break-inside: avoid;
+          -webkit-column-break-inside: avoid;
         }
         
         .item-description {
           font-size: 11pt;
           color: #333;
           margin-top: 5mm;
+          page-break-inside: avoid;
+          break-inside: avoid;
+          -webkit-column-break-inside: avoid;
+          word-break: keep-all;
+          hyphens: none;
+          white-space: pre-wrap;
+        }
+        
+        .item-description p {
+          page-break-inside: avoid;
+          break-inside: avoid;
+          -webkit-column-break-inside: avoid;
+          word-break: keep-all;
+          hyphens: none;
+          white-space: pre-wrap;
         }
         
         .item-description a {
@@ -368,11 +416,83 @@ export default function ResumePage() {
           display: inline-block;
           margin-top: 5mm;
           font-size: 11pt;
+          page-break-inside: avoid;
+          break-inside: avoid;
+          -webkit-column-break-inside: avoid;
+        }
+        
+        .skills-list {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 8px;
+          margin-top: 5mm;
+          page-break-inside: avoid;
+          break-inside: avoid;
+          -webkit-column-break-inside: avoid;
+        }
+        
+        .skill-item {
+          background: #f0f0f0;
+          padding: 4px 8px;
+          border-radius: 20px;
+          font-size: 11pt;
+          color: #333;
+          page-break-inside: avoid;
+          break-inside: avoid;
+          -webkit-column-break-inside: avoid;
         }
         
         @page {
           margin: 25mm;
           size: A4;
+          page-break-inside: avoid;
+          break-inside: avoid;
+          -webkit-column-break-inside: avoid;
+        }
+        
+        /* Prevent word splitting across pages */
+        p {
+          page-break-inside: avoid;
+          break-inside: avoid;
+          -webkit-column-break-inside: avoid;
+          word-break: keep-all;
+          hyphens: none;
+          white-space: pre-wrap;
+        }
+        
+        /* Prevent section breaks across pages */
+        .section {
+          page-break-inside: avoid;
+          break-inside: avoid;
+          -webkit-column-break-inside: avoid;
+          page-break-after: avoid;
+          break-after: avoid;
+        }
+        
+        /* Prevent list items from breaking across pages */
+        ul, ol {
+          page-break-inside: avoid;
+          break-inside: avoid;
+          -webkit-column-break-inside: avoid;
+        }
+        
+        li {
+          page-break-inside: avoid;
+          break-inside: avoid;
+          -webkit-column-break-inside: avoid;
+        }
+        
+        /* Additional WebKit-specific rules */
+        * {
+          -webkit-column-break-inside: avoid;
+          -webkit-column-break-after: avoid;
+          -webkit-column-break-before: avoid;
+        }
+        
+        /* Prevent splitting of inline elements */
+        span, a {
+          display: inline-block;
+          white-space: nowrap;
         }
       `
       tempContainer.appendChild(style)
